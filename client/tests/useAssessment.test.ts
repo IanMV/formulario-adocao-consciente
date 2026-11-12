@@ -73,6 +73,7 @@ describe('fluxo do formulário', () => {
     complete(flow);
     await flow.submit();
     expect(flow.screen.value).toBe('error');
+    expect(flow.consent.value).toBe(true);
     expect(Object.keys(flow.answers.value)).toHaveLength(8);
     expect(submit).toHaveBeenCalledOnce();
     await flow.submit();
@@ -111,5 +112,23 @@ describe('fluxo do formulário', () => {
     expect(flow.screen.value).toBe('questions');
     expect(flow.result.value).toBeNull();
     expect(flow.answers.value).toEqual({});
+  });
+
+  it('erro tardio de solicitação descartada não substitui uma nova avaliação', async () => {
+    let reject!: (reason: Error) => void;
+    const request = vi.fn()
+      .mockImplementationOnce(() => new Promise<typeof resultado>((_resolve, fail) => { reject = fail; }))
+      .mockResolvedValueOnce(resultado);
+    const flow = useAssessment(request);
+    complete(flow);
+    const old = flow.submit();
+    flow.restart();
+    complete(flow);
+    await flow.submit();
+    reject(new Error('Falha antiga'));
+    await old;
+    expect(flow.screen.value).toBe('result');
+    expect(flow.result.value).toEqual(resultado);
+    expect(flow.error.value).toBe('');
   });
 });

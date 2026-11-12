@@ -217,6 +217,13 @@ progress::-moz-progress-bar { background: #487a50; border-radius: 5px; }
   .consent-control { margin-top: 6px; }
 }
 
+@media (max-width: 767px) and (max-height: 690px) {
+  .screen-questions .site-footer, .screen-loading .site-footer, .screen-error .site-footer { display: none; }
+  .question-card { min-height: calc(100dvh - 80px); }
+  .is-last .options { margin-block: 10px; }
+  .is-last .privacy-note { margin-bottom: 6px; }
+}
+
 @media (max-width: 767px) and (max-height: 620px) {
   .site-header { min-height: 50px; }
   .site-footer { display: none; }

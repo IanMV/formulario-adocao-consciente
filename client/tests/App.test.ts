@@ -220,4 +220,28 @@ describe('interface da adoção consciente', () => {
     expect(document.body.textContent).toContain('Pergunta 2 de 8');
     expect(document.activeElement).toBe(document.querySelector('h1'));
   });
+
+  it('descarte durante carregamento aborta a espera e ignora resultado tardio', async () => {
+    let resolve!: (value: Response) => void;
+    let signal: AbortSignal | undefined;
+    vi.stubGlobal('fetch', vi.fn((_url, init: RequestInit) => {
+      signal = init.signal as AbortSignal;
+      return new Promise<Response>((done) => { resolve = done; });
+    }));
+    await answerAll();
+    await click('submit');
+    await click('home');
+    expect(document.querySelector('#exit-description')?.textContent).toContain('Google pode continuar');
+    await click('confirm-exit');
+    await nextTick();
+    expect(signal?.aborted).toBe(true);
+    expect(document.querySelector('[data-screen="intro"]')).not.toBeNull();
+    resolve(new Response(JSON.stringify(resultado)));
+    await new Promise((done) => setTimeout(done, 0));
+    await nextTick();
+    expect(document.querySelector('[data-screen="result"]')).toBeNull();
+    expect(document.querySelector('[data-screen="intro"]')).not.toBeNull();
+    await answerAll(false);
+    expect(document.querySelector<HTMLInputElement>('[name="aceiteTermos"]')?.checked).toBe(false);
+  });
 });

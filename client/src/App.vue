@@ -43,7 +43,7 @@ function beforeLeave(element: Element) {
 function afterEnter() {
   transitioning.value = false;
   stageHeight.value = 0;
-  if (screen.value === 'questions') focusContent();
+  if (screen.value === 'questions' && !exitOpen.value) focusContent();
 }
 
 function goHome() {
