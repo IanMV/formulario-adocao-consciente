@@ -1,2 +1,9 @@
 *.md
 !README.md
+node_modules/
+dist/
+client/dist/
+.env
+.env.*
+!.env.example
+coverage/
