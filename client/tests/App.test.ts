@@ -1,10 +1,29 @@
 import { createApp, nextTick, type App as VueApp } from 'vue';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App.vue';
 import { questions } from '../src/data/questions';
 import { resultado } from './fixtures';
 
 let app: VueApp;
+const dialogDescriptors = Object.getOwnPropertyDescriptors(HTMLDialogElement.prototype);
+
+beforeAll(() => {
+  Object.defineProperties(HTMLDialogElement.prototype, {
+    showModal: { configurable: true, value(this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+      this.querySelector<HTMLElement>('[autofocus]')?.focus();
+    } },
+    close: { configurable: true, value(this: HTMLDialogElement) { this.removeAttribute('open'); } },
+  });
+});
+
+afterAll(() => {
+  for (const name of ['showModal', 'close']) {
+    const descriptor = dialogDescriptors[name];
+    if (descriptor) Object.defineProperty(HTMLDialogElement.prototype, name, descriptor);
+    else Reflect.deleteProperty(HTMLDialogElement.prototype, name);
+  }
+});
 
 beforeEach(() => {
   vi.stubGlobal('scrollTo', vi.fn());
@@ -141,5 +160,41 @@ describe('interface da adoção consciente', () => {
     checkbox.click();
     await nextTick();
     expect(submit.disabled).toBe(true);
+  });
+
+  it('link do código-fonte aponta para o repositório e possui ícone acessível', () => {
+    const source = document.querySelector<HTMLAnchorElement>('.source-link')!;
+    expect(source.href).toBe('https://github.com/IanMV/formulario-adocao-consciente');
+    expect(source.target).toBe('_blank');
+    expect(source.getAttribute('aria-label')).toContain('GitHub');
+    expect(source.querySelector('svg')).not.toBeNull();
+  });
+
+  it('logo confirma descarte e cancelar mantém resposta e foco', async () => {
+    await click('start');
+    document.querySelector<HTMLInputElement>('input[value="medio"]')!.click();
+    await nextTick();
+    await click('home');
+    expect(document.querySelector('dialog')?.open).toBe(true);
+    expect(document.activeElement).toBe(document.querySelector('[data-action="cancel-exit"]'));
+    await click('cancel-exit');
+    expect(document.querySelector('dialog')?.open).toBe(false);
+    expect(document.querySelector<HTMLInputElement>('input[value="medio"]')?.checked).toBe(true);
+    expect(document.activeElement).toBe(document.querySelector('[data-action="home"]'));
+    await click('home');
+    await click('confirm-exit');
+    await nextTick();
+    expect(document.querySelector('[data-screen="intro"]')).not.toBeNull();
+    await click('start');
+    expect(document.querySelector('input:checked')).toBeNull();
+  });
+
+  it('Escape cancela o diálogo sem descartar respostas', async () => {
+    await click('start');
+    await click('home');
+    document.querySelector('dialog')!.dispatchEvent(new Event('cancel', { cancelable: true }));
+    await nextTick();
+    expect(document.querySelector('dialog')?.open).toBe(false);
+    expect(document.querySelector('[data-screen="questions"]')).not.toBeNull();
   });
 });

@@ -1,14 +1,35 @@
 <script setup lang="ts">
-import { nextTick, watch } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 import IntroScreen from './components/IntroScreen.vue';
 import QuestionStep from './components/QuestionStep.vue';
 import AssessmentResult from './components/AssessmentResult.vue';
 import PetIllustration from './components/PetIllustration.vue';
 import PawIcon from './components/PawIcon.vue';
+import GitHubIcon from './components/GitHubIcon.vue';
+import ExitDialog from './components/ExitDialog.vue';
 import { useAssessment } from './composables/useAssessment';
 import { questions } from './data/questions';
 
 const { screen, index, result, error, consent, question, selected, isLast, start, select, next, back, submit, review, restart } = useAssessment();
+const exitOpen = ref(false);
+const brand = ref<HTMLButtonElement | null>(null);
+
+function goHome() {
+  if (screen.value === 'intro') document.querySelector<HTMLElement>('[data-focus]')?.focus();
+  else exitOpen.value = true;
+}
+
+async function cancelExit() {
+  exitOpen.value = false;
+  await nextTick();
+  brand.value?.focus();
+}
+
+async function confirmExit() {
+  exitOpen.value = false;
+  await nextTick();
+  restart();
+}
 
 watch([screen, index], async () => {
   await nextTick();
@@ -21,9 +42,9 @@ watch([screen, index], async () => {
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
   <div class="site-shell">
     <header class="site-header">
-      <a class="brand" href="#conteudo" aria-label="Adoção Consciente — ir para o conteúdo"><span class="brand-icon"><PawIcon /></span><span>Adoção <br /><strong>Consciente<span class="brand-dot">.</span></strong></span></a>
+      <button ref="brand" class="brand" type="button" data-action="home" aria-label="Adoção Consciente — voltar ao início" @click="goHome"><span class="brand-icon"><PawIcon /></span><span>Adoção <br /><strong>Consciente<span class="brand-dot">.</span></strong></span></button>
       <span class="header-note"><span aria-hidden="true">♡</span> MAIS CUIDADO. MENOS ABANDONO.</span>
-      <span class="project-tag">projeto educativo <span aria-hidden="true">↗</span></span>
+      <a class="source-link" href="https://github.com/IanMV/formulario-adocao-consciente" target="_blank" rel="noopener noreferrer" aria-label="Código-fonte no GitHub (abre em nova aba)"><GitHubIcon /><span>Código-fonte</span><span aria-hidden="true">↗</span></a>
     </header>
 
     <main id="conteudo" tabindex="-1">
@@ -65,4 +86,5 @@ watch([screen, index], async () => {
 
     <footer class="site-footer"><span>Feito para incentivar escolhas conscientes.</span><span>Um pequeno passo por quem depende de nós. <span aria-hidden="true">♡</span></span></footer>
   </div>
+  <ExitDialog :open="exitOpen" :loading="screen === 'loading'" @cancel="cancelExit" @confirm="confirmExit" />
 </template>

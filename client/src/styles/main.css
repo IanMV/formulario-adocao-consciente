@@ -31,7 +31,7 @@ p { line-height: 1.65; }
 em { font-weight: inherit; }
 .site-shell { max-width: 1360px; margin: 0 auto; padding: 0 6%; }
 .site-header { min-height: 120px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
-.brand { display: flex; align-items: center; gap: 12px; font-size: 18px; line-height: 1.1; text-decoration: none; letter-spacing: -.6px; }
+.brand { display: flex; align-items: center; gap: 12px; font-size: 18px; line-height: 1.1; text-decoration: none; letter-spacing: -.6px; background: transparent; border: 0; padding: 0; color: inherit; text-align: left; min-height: 44px; }
 .brand strong { font-weight: 800; }
 .brand-dot { color: #b34c34; }
 .brand-icon { width: 48px; height: 48px; padding: 9px; background: var(--green); color: #f6f4eb; border-radius: 15px 15px 15px 3px; transform: rotate(-7deg); }
@@ -40,6 +40,16 @@ em { font-weight: inherit; }
 .header-note > span { font-size: 23px; }
 .project-tag { padding: 9px 13px; border: 1px solid #bdc6b3; border-radius: 30px; font-size: 12px; display: flex; gap: 18px; align-items: center; }
 .project-tag > span { font-size: 18px; }
+.source-link { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 7px 10px; font-size: 11px; text-decoration: none; border-radius: 9px; }
+.source-link svg { width: 21px; height: 21px; flex-shrink: 0; }
+.source-link:hover { background: #e6eadc; }
+.exit-dialog { color: var(--green); background: #fffefa; border: 1px solid var(--line); border-radius: 22px; padding: 0; width: min(420px, calc(100% - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; box-shadow: 0 20px 80px #102b2940; }
+.exit-dialog::backdrop { background: #122b246b; backdrop-filter: blur(4px); }
+.dialog-content { padding: 28px; text-align: center; }
+.dialog-symbol { display: inline-flex; align-items: center; justify-content: center; background: #f6e1d1; color: #95513b; width: 52px; height: 52px; border-radius: 50%; font-size: 32px; margin-bottom: 16px; }
+.dialog-content h2 { font-family: Georgia, serif; font-size: 30px; font-weight: 400; margin-bottom: 12px; }
+.dialog-content p { font-size: 13px; color: var(--muted); }
+.dialog-actions { display: grid; gap: 12px; margin-top: 24px; }
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 700; letter-spacing: 1.6px; line-height: 1.7; }
 .tiny-star { font-size: 22px; color: #9c5238; }
 .intro { display: grid; grid-template-columns: 1.05fr 1fr; gap: 20px; padding-top: 62px; }

@@ -91,4 +91,25 @@ describe('fluxo do formulário', () => {
     expect(flow.result.value).toBeNull();
     expect(flow.consent.value).toBe(false);
   });
+
+  it('descarte cancela a espera e ignora resposta tardia de uma avaliação anterior', async () => {
+    let resolve!: (value: typeof resultado) => void;
+    let signal: AbortSignal | undefined;
+    const request = vi.fn((_answers, _consent, inputSignal?: AbortSignal) => {
+      signal = inputSignal;
+      return new Promise<typeof resultado>((done) => { resolve = done; });
+    });
+    const flow = useAssessment(request);
+    complete(flow);
+    const pending = flow.submit();
+    flow.restart();
+    expect(signal?.aborted).toBe(true);
+    expect(flow.consent.value).toBe(false);
+    flow.start();
+    resolve(resultado);
+    await pending;
+    expect(flow.screen.value).toBe('questions');
+    expect(flow.result.value).toBeNull();
+    expect(flow.answers.value).toEqual({});
+  });
 });

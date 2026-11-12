@@ -1,3 +1,6 @@
 As ilustrações SVG deste frontend foram criadas para o projeto Adoção Consciente.
 Nenhuma das imagens da pasta references/ é incorporada ou distribuída pelo frontend.
-Não são carregadas imagens, fontes ou bibliotecas de ícones de terceiros pela interface.
+O ícone GitHub é o mark-github-16 da biblioteca Octicons, incorporado localmente.
+Origem: https://github.com/primer/octicons/blob/main/icons/mark-github-16.svg
+Licença MIT: /licenses/octicons.txt
+Não são carregadas imagens, fontes ou bibliotecas de ícones por serviços externos.

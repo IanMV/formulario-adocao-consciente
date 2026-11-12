@@ -15,6 +15,8 @@ export function useAssessment(request = solicitarAvaliacao) {
   const question = computed(() => questions[index.value]!);
   const selected = computed(() => answers.value[question.value.id]);
   const isLast = computed(() => index.value === questions.length - 1);
+  let requestVersion = 0;
+  let controller: AbortController | null = null;
 
   function start() { screen.value = 'questions'; }
   function select(value: string) {
@@ -37,12 +39,19 @@ export function useAssessment(request = solicitarAvaliacao) {
     screen.value = 'loading';
     error.value = '';
     result.value = null;
+    const version = ++requestVersion;
+    controller = new AbortController();
     try {
-      result.value = await request({ ...answers.value } as Respostas, consent.value);
+      const response = await request({ ...answers.value } as Respostas, consent.value, controller.signal);
+      if (version !== requestVersion) return;
+      result.value = response;
       screen.value = 'result';
     } catch (failure) {
+      if (version !== requestVersion) return;
       error.value = failure instanceof Error ? failure.message : 'Ocorreu um imprevisto. Tente novamente.';
       screen.value = 'error';
+    } finally {
+      if (version === requestVersion) controller = null;
     }
   }
   function review() {
@@ -53,7 +62,9 @@ export function useAssessment(request = solicitarAvaliacao) {
     screen.value = 'questions';
   }
   function restart() {
-    if (screen.value === 'loading') return;
+    requestVersion++;
+    controller?.abort();
+    controller = null;
     answers.value = {};
     result.value = null;
     error.value = '';
