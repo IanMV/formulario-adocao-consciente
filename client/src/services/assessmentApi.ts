@@ -31,7 +31,8 @@ export async function solicitarAvaliacao(respostas: Respostas): Promise<Resultad
       signal: AbortSignal.timeout(40_000),
     });
   } catch (error) {
-    if (error instanceof Error && ['TimeoutError', 'AbortError'].includes(error.name)) {
+    const name = typeof error === 'object' && error !== null && 'name' in error ? error.name : undefined;
+    if (name === 'TimeoutError' || name === 'AbortError') {
       throw new Error('A conexão demorou mais que o esperado. Tente novamente.');
     }
     throw new Error('Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.');

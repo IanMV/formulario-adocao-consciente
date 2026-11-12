@@ -40,7 +40,7 @@ watch([screen, index], async () => {
 
         <QuestionStep v-if="screen === 'questions'" :key="index" :question="question" :index="index" :total="questions.length" :selected="selected" :is-last="isLast" @select="select" @next="next" @back="back" @submit="submit" />
 
-        <section v-else-if="screen === 'loading'" class="state-card" data-screen="loading" aria-busy="true">
+        <section v-else-if="screen === 'loading'" class="state-card" data-screen="loading">
           <span class="loading-paw"><PawIcon /></span>
           <span class="eyebrow">UM INSTANTE DE CUIDADO</span>
           <h1 tabindex="-1" data-focus>Vamos olhar para<br />suas respostas.</h1>

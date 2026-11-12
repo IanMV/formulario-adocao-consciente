@@ -1,0 +1,3 @@
+As ilustrações SVG deste frontend foram criadas para o projeto Adoção Consciente.
+Nenhuma das imagens da pasta references/ é incorporada ou distribuída pelo frontend.
+Não são carregadas imagens, fontes ou bibliotecas de ícones de terceiros pela interface.

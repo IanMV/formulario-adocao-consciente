@@ -33,4 +33,11 @@ describe('cliente da avaliação', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')));
     await expect(solicitarAvaliacao(respostas)).rejects.toThrow(/conexão/i);
   });
+
+  it('trata timeout sem repetir a solicitação', async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new DOMException('timeout', 'TimeoutError'));
+    vi.stubGlobal('fetch', fetchMock);
+    await expect(solicitarAvaliacao(respostas)).rejects.toThrow(/demorou/i);
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
 });

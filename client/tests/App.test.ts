@@ -63,6 +63,17 @@ describe('interface da adoção consciente', () => {
     expect(document.querySelector<HTMLInputElement>('input[value="medio"]')?.checked).toBe(true);
   });
 
+  it('não restaura respostas quando a aplicação é carregada novamente', async () => {
+    await click('start');
+    document.querySelector<HTMLInputElement>('input[value="medio"]')!.click();
+    await nextTick();
+    app.unmount();
+    app = createApp(App);
+    app.mount('#test-app');
+    await click('start');
+    expect(document.querySelector('input:checked')).toBeNull();
+  });
+
   it('envia uma vez, apresenta os quatro blocos e mantém textos da IA inertes', async () => {
     let resolve!: (response: Response) => void;
     const fetchMock = vi.fn(() => new Promise<Response>((done) => { resolve = done; }));
