@@ -7,12 +7,44 @@ import PetIllustration from './components/PetIllustration.vue';
 import PawIcon from './components/PawIcon.vue';
 import GitHubIcon from './components/GitHubIcon.vue';
 import ExitDialog from './components/ExitDialog.vue';
+import GraphicShape from './components/GraphicShape.vue';
 import { useAssessment } from './composables/useAssessment';
 import { questions } from './data/questions';
 
 const { screen, index, result, error, consent, question, selected, isLast, start, select, next, back, submit, review, restart } = useAssessment();
 const exitOpen = ref(false);
 const brand = ref<HTMLButtonElement | null>(null);
+const transitioning = ref(false);
+const direction = ref<'forward' | 'backward'>('forward');
+const stageHeight = ref(0);
+
+function focusContent() {
+  document.querySelector<HTMLElement>('[data-focus]')?.focus({ preventScroll: true });
+}
+
+function navigateNext() {
+  if (transitioning.value || !selected.value || isLast.value) return;
+  transitioning.value = true;
+  direction.value = 'forward';
+  next();
+}
+
+function navigateBack() {
+  if (transitioning.value) return;
+  transitioning.value = index.value > 0;
+  direction.value = 'backward';
+  back();
+}
+
+function beforeLeave(element: Element) {
+  stageHeight.value = element.getBoundingClientRect().height;
+}
+
+function afterEnter() {
+  transitioning.value = false;
+  stageHeight.value = 0;
+  if (screen.value === 'questions') focusContent();
+}
 
 function goHome() {
   if (screen.value === 'intro') document.querySelector<HTMLElement>('[data-focus]')?.focus();
@@ -31,16 +63,18 @@ async function confirmExit() {
   restart();
 }
 
-watch([screen, index], async () => {
+watch(screen, async () => {
+  transitioning.value = false;
+  stageHeight.value = 0;
   await nextTick();
-  document.querySelector<HTMLElement>('[data-focus]')?.focus({ preventScroll: true });
+  focusContent();
   window.scrollTo({ top: 0, behavior: 'instant' });
 });
 </script>
 
 <template>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
-  <div class="site-shell">
+  <div class="site-shell" :class="`screen-${screen}`">
     <header class="site-header">
       <button ref="brand" class="brand" type="button" data-action="home" aria-label="Adoção Consciente — voltar ao início" @click="goHome"><span class="brand-icon"><PawIcon /></span><span>Adoção <br /><strong>Consciente<span class="brand-dot">.</span></strong></span></button>
       <span class="header-note"><span aria-hidden="true">♡</span> MAIS CUIDADO. MENOS ABANDONO.</span>
@@ -52,14 +86,21 @@ watch([screen, index], async () => {
 
       <div v-else-if="screen === 'questions' || screen === 'loading' || screen === 'error'" class="assessment-layout">
         <aside class="assessment-aside">
+          <GraphicShape class="aside-heart" kind="heart" />
           <span class="eyebrow">ANTES DE ADOTAR, VAMOS CONVERSAR?</span>
           <h2>Um pouquinho de<br />reflexão. <em>Uma vida<br />inteira de cuidado.</em></h2>
           <PetIllustration />
+          <GraphicShape class="aside-ribbon" kind="ribbon" />
           <p>Amar é importante.<br /><strong>Estar presente também.</strong></p>
           <span class="aside-footnote">Sem nota. Sem julgamento.<br />Cada resposta é um começo.</span>
         </aside>
 
-        <QuestionStep v-if="screen === 'questions'" :key="index" :question="question" :index="index" :total="questions.length" :selected="selected" :is-last="isLast" :consent="consent" @consent="consent = $event" @select="select" @next="next" @back="back" @submit="submit" />
+        <div v-if="screen === 'questions'" class="question-stage" :aria-busy="transitioning" :style="stageHeight ? { minHeight: `${stageHeight}px` } : undefined">
+          <GraphicShape class="step-star" kind="star" />
+          <Transition :name="`step-${direction}`" mode="out-in" @before-leave="beforeLeave" @after-enter="afterEnter" @enter-cancelled="afterEnter">
+            <QuestionStep :key="index" :question="question" :index="index" :total="questions.length" :selected="selected" :is-last="isLast" :consent="consent" :busy="transitioning" @consent="consent = $event" @select="select" @next="navigateNext" @back="navigateBack" @submit="submit" />
+          </Transition>
+        </div>
 
         <section v-else-if="screen === 'loading'" class="state-card" data-screen="loading">
           <span class="loading-paw"><PawIcon /></span>

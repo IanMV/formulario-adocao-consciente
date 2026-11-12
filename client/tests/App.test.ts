@@ -43,6 +43,9 @@ async function click(action: string) {
   expect(element, action).not.toBeNull();
   element!.click();
   await nextTick();
+  if (action === 'next' || action === 'back') {
+    await vi.waitFor(() => expect(document.querySelector('.question-stage')?.getAttribute('aria-busy')).not.toBe('true'), { interval: 5 });
+  }
 }
 
 async function answerAll(consent = true) {
@@ -196,5 +199,25 @@ describe('interface da adoção consciente', () => {
     await nextTick();
     expect(document.querySelector('dialog')?.open).toBe(false);
     expect(document.querySelector('[data-screen="questions"]')).not.toBeNull();
+  });
+
+  it('alternativas não apresentam letras de teste', async () => {
+    await click('start');
+    expect(document.querySelector('.option-letter')).toBeNull();
+    expect([...document.querySelectorAll('.option-text')].map((element) => element.textContent)).toEqual(['Pequeno', 'Médio', 'Grande']);
+  });
+
+  it('troca de etapa bloqueia cliques repetidos e restaura o foco ao terminar', async () => {
+    await click('start');
+    document.querySelector<HTMLInputElement>('input[value="pequeno"]')!.click();
+    await nextTick();
+    const next = document.querySelector<HTMLButtonElement>('[data-action="next"]')!;
+    next.click();
+    next.click();
+    await nextTick();
+    expect(document.querySelector('.question-stage')?.getAttribute('aria-busy')).toBe('true');
+    await vi.waitFor(() => expect(document.querySelector('.question-stage')?.getAttribute('aria-busy')).toBe('false'), { interval: 5 });
+    expect(document.body.textContent).toContain('Pergunta 2 de 8');
+    expect(document.activeElement).toBe(document.querySelector('h1'));
   });
 });
