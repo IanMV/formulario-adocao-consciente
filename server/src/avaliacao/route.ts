@@ -10,7 +10,7 @@ export function criarRotaAvaliacao(gerar: GerarAvaliacao) {
     if (!result.success) {
       res.status(400).json({ erro: {
         codigo: 'RESPOSTAS_INVALIDAS',
-        mensagem: 'Preencha as oito respostas com as opções permitidas, sem campos adicionais.',
+        mensagem: 'Preencha as oito respostas com as opções permitidas e aceite o envio à Gemini API, sem campos adicionais.',
         campos: [...new Set(result.error.issues.flatMap((issue) =>
           issue.code === 'unrecognized_keys'
             ? issue.keys.map((key) => [...issue.path, key].join('.'))

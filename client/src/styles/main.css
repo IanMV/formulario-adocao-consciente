@@ -108,6 +108,8 @@ progress::-moz-progress-bar { background: #487a50; border-radius: 5px; }
 .privacy-note { background: #f4f3eb; border-radius: 10px; padding: 15px; margin-bottom: 18px; font-size: 11px; color: #52604d; }
 .privacy-note > p { margin: 5px 0; }
 .privacy-note a { text-underline-offset: 3px; display: inline-flex; gap: 6px; align-items: center; min-height: 32px; }
+.consent-control { display: flex; align-items: flex-start; gap: 10px; margin-top: 8px; min-height: 44px; cursor: pointer; line-height: 1.5; }
+.consent-control input { width: 19px; height: 19px; flex: 0 0 19px; margin: 1px 0 0; accent-color: var(--green); }
 .state-card { text-align: center; padding: 55px 32px; display: flex; flex-direction: column; align-items: center; }
 .loading-paw { width: 75px; padding: 17px; display: block; border-radius: 50%; background: #e4ecd9; transform: rotate(-10deg); margin-bottom: 27px; }
 .state-card h1 { font-family: Georgia, serif; font-weight: 400; font-size: 34px; letter-spacing: -1px; line-height: 1.15; margin: 20px 0; }

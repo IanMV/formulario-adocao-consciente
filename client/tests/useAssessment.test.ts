@@ -3,12 +3,13 @@ import { useAssessment } from '../src/composables/useAssessment';
 import { questions } from '../src/data/questions';
 import { resultado } from './fixtures';
 
-function complete(flow: ReturnType<typeof useAssessment>) {
+function complete(flow: ReturnType<typeof useAssessment>, consent = true) {
   flow.start();
   for (const question of questions) {
     flow.select(question.options[0].value);
     if (flow.index.value < questions.length - 1) flow.next();
   }
+  flow.consent.value = consent;
 }
 
 describe('fluxo do formulário', () => {
@@ -37,6 +38,15 @@ describe('fluxo do formulário', () => {
     flow.start();
     await flow.submit();
     expect(submit).not.toHaveBeenCalled();
+  });
+
+  it('não envia respostas completas sem aceite', async () => {
+    const submit = vi.fn();
+    const flow = useAssessment(submit);
+    complete(flow, false);
+    await flow.submit();
+    expect(submit).not.toHaveBeenCalled();
+    expect(flow.screen.value).toBe('questions');
   });
 
   it('impede submissões duplicadas e invalida resultado ao revisar', async () => {
@@ -79,5 +89,6 @@ describe('fluxo do formulário', () => {
     expect(flow.answers.value).toEqual({});
     expect(flow.index.value).toBe(0);
     expect(flow.result.value).toBeNull();
+    expect(flow.consent.value).toBe(false);
   });
 });

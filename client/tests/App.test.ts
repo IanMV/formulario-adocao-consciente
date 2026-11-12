@@ -26,13 +26,17 @@ async function click(action: string) {
   await nextTick();
 }
 
-async function answerAll() {
+async function answerAll(consent = true) {
   await click('start');
   for (const [index, question] of questions.entries()) {
     expect(document.querySelector('h1')?.textContent).toContain(question.title);
     document.querySelector<HTMLInputElement>(`input[value="${question.options[0].value}"]`)!.click();
     await nextTick();
     if (index < 7) await click('next');
+  }
+  if (consent) {
+    document.querySelector<HTMLInputElement>('input[name="aceiteTermos"]')!.click();
+    await nextTick();
   }
 }
 
@@ -123,5 +127,19 @@ describe('interface da adoção consciente', () => {
     await click('retry');
     await settle();
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('envio depende de aceite explícito e desmarcável', async () => {
+    await answerAll(false);
+    const submit = document.querySelector<HTMLButtonElement>('[data-action="submit"]')!;
+    const checkbox = document.querySelector<HTMLInputElement>('input[name="aceiteTermos"]')!;
+    expect(checkbox.checked).toBe(false);
+    expect(submit.disabled).toBe(true);
+    checkbox.click();
+    await nextTick();
+    expect(submit.disabled).toBe(false);
+    checkbox.click();
+    await nextTick();
+    expect(submit.disabled).toBe(true);
   });
 });

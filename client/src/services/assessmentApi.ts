@@ -21,14 +21,15 @@ const mensagens: Record<number, string> = {
   504: 'A avaliação demorou mais que o esperado. Tente novamente.',
 };
 
-export async function solicitarAvaliacao(respostas: Respostas): Promise<Resultado> {
+export async function solicitarAvaliacao(respostas: Respostas, aceiteTermos: boolean, signal?: AbortSignal): Promise<Resultado> {
+  if (!aceiteTermos) throw new Error('Confirme a leitura do aviso e o aceite do envio antes de continuar.');
   let response: Response;
   try {
     response = await fetch('/api/avaliacao', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ respostas }),
-      signal: AbortSignal.timeout(40_000),
+      body: JSON.stringify({ respostas, aceiteTermos }),
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(40_000)]) : AbortSignal.timeout(40_000),
     });
   } catch (error) {
     const name = typeof error === 'object' && error !== null && 'name' in error ? error.name : undefined;

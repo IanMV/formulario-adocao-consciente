@@ -8,7 +8,7 @@ import PawIcon from './components/PawIcon.vue';
 import { useAssessment } from './composables/useAssessment';
 import { questions } from './data/questions';
 
-const { screen, index, result, error, question, selected, isLast, start, select, next, back, submit, review, restart } = useAssessment();
+const { screen, index, result, error, consent, question, selected, isLast, start, select, next, back, submit, review, restart } = useAssessment();
 
 watch([screen, index], async () => {
   await nextTick();
@@ -38,7 +38,7 @@ watch([screen, index], async () => {
           <span class="aside-footnote">Sem nota. Sem julgamento.<br />Cada resposta é um começo.</span>
         </aside>
 
-        <QuestionStep v-if="screen === 'questions'" :key="index" :question="question" :index="index" :total="questions.length" :selected="selected" :is-last="isLast" @select="select" @next="next" @back="back" @submit="submit" />
+        <QuestionStep v-if="screen === 'questions'" :key="index" :question="question" :index="index" :total="questions.length" :selected="selected" :is-last="isLast" :consent="consent" @consent="consent = $event" @select="select" @next="next" @back="back" @submit="submit" />
 
         <section v-else-if="screen === 'loading'" class="state-card" data-screen="loading">
           <span class="loading-paw"><PawIcon /></span>

@@ -12,7 +12,7 @@ export const respostasSchema = z.strictObject({
   compromissoVitalicio: z.enum(['sim', 'ainda_tenho_duvidas', 'nao_tenho_certeza']),
 });
 
-export const entradaSchema = z.strictObject({ respostas: respostasSchema });
+export const entradaSchema = z.strictObject({ respostas: respostasSchema, aceiteTermos: z.literal(true) });
 const texto = z.string().trim().min(1).max(3000);
 export const avaliacaoSchema = z.strictObject({
   resumo: texto,

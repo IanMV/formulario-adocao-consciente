@@ -11,6 +11,7 @@ export function useAssessment(request = solicitarAvaliacao) {
   const answers = ref<Partial<Respostas>>({});
   const result = ref<Resultado | null>(null);
   const error = ref('');
+  const consent = ref(false);
   const question = computed(() => questions[index.value]!);
   const selected = computed(() => answers.value[question.value.id]);
   const isLast = computed(() => index.value === questions.length - 1);
@@ -31,12 +32,13 @@ export function useAssessment(request = solicitarAvaliacao) {
   }
   async function submit() {
     if (!['questions', 'error'].includes(screen.value)) return;
+    if (!consent.value) return;
     if (!questions.every((item) => item.options.some((option) => option.value === answers.value[item.id]))) return;
     screen.value = 'loading';
     error.value = '';
     result.value = null;
     try {
-      result.value = await request({ ...answers.value } as Respostas);
+      result.value = await request({ ...answers.value } as Respostas, consent.value);
       screen.value = 'result';
     } catch (failure) {
       error.value = failure instanceof Error ? failure.message : 'Ocorreu um imprevisto. Tente novamente.';
@@ -57,6 +59,7 @@ export function useAssessment(request = solicitarAvaliacao) {
     error.value = '';
     index.value = 0;
     screen.value = 'intro';
+    consent.value = false;
   }
-  return { screen, index, answers, result, error, question, selected, isLast, start, select, next, back, submit, review, restart };
+  return { screen, index, answers, result, error, consent, question, selected, isLast, start, select, next, back, submit, review, restart };
 }

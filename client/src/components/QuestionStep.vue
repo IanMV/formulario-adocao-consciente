@@ -2,8 +2,8 @@
 import type { Question } from '../types/assessment';
 import ProgressBar from './ProgressBar.vue';
 
-defineProps<{ question: Question; index: number; total: number; selected?: string; isLast: boolean }>();
-defineEmits<{ select: [value: string]; next: []; back: []; submit: [] }>();
+defineProps<{ question: Question; index: number; total: number; selected?: string; isLast: boolean; consent: boolean }>();
+defineEmits<{ select: [value: string]; next: []; back: []; submit: []; consent: [value: boolean] }>();
 </script>
 
 <template>
@@ -24,10 +24,14 @@ defineEmits<{ select: [value: string]; next: []; back: []; submit: [] }>();
       <strong>Antes de enviar</strong>
       <p>Suas respostas serão enviadas à IA do Google para gerar uma reflexão educativa. No serviço gratuito, o Google pode usá-las para melhorar seus produtos. Não coletamos nome ou contato nem salvamos um histórico.</p>
       <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener noreferrer">Termos da Gemini API <span class="sr-only">(abre em nova aba)</span><span aria-hidden="true">↗</span></a>
+      <label class="consent-control">
+        <input type="checkbox" name="aceiteTermos" :checked="consent" required @change="$emit('consent', ($event.target as HTMLInputElement).checked)" />
+        <span>Li o aviso e os termos da Gemini API e concordo com o envio das minhas respostas.</span>
+      </label>
     </div>
     <div class="question-actions">
       <button class="button button-back" type="button" data-action="back" @click="$emit('back')"><span aria-hidden="true">←</span> Voltar</button>
-      <button class="button button-primary" type="submit" :disabled="!selected" :data-action="isLast ? 'submit' : 'next'">
+      <button class="button button-primary" type="submit" :disabled="!selected || (isLast && !consent)" :data-action="isLast ? 'submit' : 'next'">
         {{ isLast ? 'Receber orientações' : 'Continuar' }} <span aria-hidden="true">→</span>
       </button>
     </div>
