@@ -6,27 +6,42 @@
   "author": "",
   "type": "module",
   "private": true,
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "dev": "tsx watch server/src/server.ts",
-    "build": "tsc -p tsconfig.json",
+    "dev": "concurrently --kill-others -n server,client \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "tsx watch server/src/server.ts",
+    "dev:client": "vite --config client/vite.config.ts",
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "tsc -p tsconfig.json",
+    "build:client": "vue-tsc --noEmit -p client/tsconfig.json && vite build --config client/vite.config.ts",
     "start": "node dist/server/server.js",
-    "typecheck": "tsc -p tsconfig.test.json --noEmit",
-    "test": "tsx --test server/tests/*.test.ts",
+    "typecheck": "tsc -p tsconfig.test.json --noEmit && vue-tsc --noEmit -p client/tsconfig.json",
+    "test": "npm run test:server && npm run test:client",
+    "test:server": "tsx --test server/tests/*.test.ts",
+    "test:client": "vitest run --config client/vitest.config.ts",
     "check": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@google/genai": "^3.2.0",
     "dotenv": "^18.0.10",
     "express": "^5.3.0",
+    "vue": "^3.5.45",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.6",
     "@types/supertest": "^7.2.1",
+    "@vitejs/plugin-vue": "^6.0.11",
+    "concurrently": "^10.0.7",
+    "jsdom": "^31.0.0",
     "supertest": "^7.3.2",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^6.0.3",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0",
+    "vue-tsc": "^3.3.14"
   }
 }
